@@ -1,6 +1,6 @@
 {
   "name": "@mitch1009/close-milestone",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Close milestones action",
   "main": "index.js",
   "scripts": {
