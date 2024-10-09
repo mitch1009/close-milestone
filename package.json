@@ -1,0 +1,30 @@
+{
+  "name": "@mitch1009/close-milestone",
+  "version": "0.0.1",
+  "description": "Close milestones action",
+  "main": "index.js",
+  "scripts": {
+    "rel": "standard-version --sign --release-as patch --tag-prefix 'close-milestone@'",
+    "rel:v": "standard-version --release-as patch",
+    "rel:local": "standard-version --release-as patch --tag-prefix 'close-milestone@'",
+    "release": "standard-version --sign --release-as patch  "
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "milestones",
+    "close",
+    "github",
+    "actions",
+    "milestones"
+  ],
+  "author": {
+    "name": "Mitch1009",
+    "email": "hello@mitch.guru",
+    "url": "https://mitch.guru"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "standard-version": "^9.5.0"
+  }
+}
