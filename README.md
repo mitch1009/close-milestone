@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Close Completed Milestones
-        uses: Mitch1009/close-milestone@main
+        uses: mitch1009/close-milestone@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           target-branch: main

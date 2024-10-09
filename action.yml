@@ -1,5 +1,9 @@
-name: 'Close Completed Milestones and Create PR'
+name: 'Close Completed Milestones'
 description: 'Closes completed milestones and creates a PR to a specified branch'
+author: 'Mitch Chanza'
+branding:
+  icon: 'check-circle'
+  color: 'green'
 inputs:
   github-token:
     description: 'GitHub token'
