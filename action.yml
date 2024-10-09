@@ -1,0 +1,72 @@
+name: 'Close Completed Milestones and Create PR'
+description: 'Closes completed milestones and creates a PR to a specified branch'
+inputs:
+  github-token:
+    description: 'GitHub token'
+    required: true
+  target-branch:
+    description: 'Branch to create the PR against'
+    required: true
+    default: 'main'
+runs:
+  using: "composite"
+  steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Check and close completed milestones
+      id: close-milestones
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const { data: milestones } = await github.rest.issues.listMilestones({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open'
+          });
+
+          let closedMilestones = [];
+          for (const milestone of milestones) {
+            if (milestone.open_issues === 0 && milestone.closed_issues > 0) {
+              console.log(`Closing milestone: ${milestone.title} (${milestone.number})`);
+              await github.rest.issues.updateMilestone({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                milestone_number: milestone.number,
+                state: 'closed'
+              });
+              console.log(`Closed milestone: ${milestone.title} (${milestone.number})`);
+              closedMilestones.push(milestone.title);
+            }
+          }
+          
+          console.log(`Action run complete. Closed ${closedMilestones.length} milestone(s).`);
+          return JSON.stringify(closedMilestones);
+
+    - name: Create PR if milestones were closed
+      if: steps.close-milestones.outputs.result != '[]'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        CLOSED_MILESTONES: ${{ steps.close-milestones.outputs.result }}
+        TARGET_BRANCH: ${{ inputs.target-branch }}
+      run: |
+        # Create a new branch
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        BRANCH_NAME="update-after-milestone-closure-$(date +%s)"
+        git checkout -b $BRANCH_NAME
+
+        # Create a file with closed milestones info
+        echo "Closed milestones: $CLOSED_MILESTONES" > closed_milestones.md
+
+        # Commit and push the changes
+        git add closed_milestones.md
+        git commit -m "Update after milestone closure"
+        git push origin $BRANCH_NAME
+
+        # Create a pull request
+        PR_TITLE="Update after milestone closure"
+        PR_BODY="This PR was automatically created after closing the following milestones: $CLOSED_MILESTONES"
+        gh pr create --base $TARGET_BRANCH --head $BRANCH_NAME --title "$PR_TITLE" --body "$PR_BODY"
